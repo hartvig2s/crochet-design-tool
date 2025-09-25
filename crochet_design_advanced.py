@@ -241,6 +241,16 @@ CROCHET_DESIGN_ADVANCED_HTML = '''
             z-index: 10;
         }
 
+        .grid-cell.motif-mode {
+            cursor: crosshair;
+        }
+
+        .grid-cell.motif-mode:hover {
+            background: rgba(52, 152, 219, 0.3);
+            border-color: #2980b9;
+            border-width: 2px;
+        }
+
         .grid-cell.filled {
             background: #333;
         }
@@ -603,6 +613,7 @@ CROCHET_DESIGN_ADVANCED_HTML = '''
 
                     <div class="tool-group">
                         <h4>Basic Tools</h4>
+                        <p style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 0.5rem;">Click individual squares to fill/erase. Hold Shift and drag for multiple squares.</p>
                         <div class="tool-buttons">
                             <button class="tool-btn active" onclick="setTool('fill')" data-tool="fill">Fill</button>
                             <button class="tool-btn" onclick="setTool('erase')" data-tool="erase">Erase</button>
@@ -749,6 +760,12 @@ CROCHET_DESIGN_ADVANCED_HTML = '''
 
             // Enable motif placement tool
             setTool('place-motif');
+
+            // Show instruction
+            const confirmation = document.getElementById('validation-errors');
+            if (confirmation) {
+                confirmation.innerHTML = `<div style="color: #3498db;">📍 Click on the grid to place "${motif.name}" motif</div>`;
+            }
         }
 
         function setTool(tool) {
@@ -861,25 +878,36 @@ CROCHET_DESIGN_ADVANCED_HTML = '''
                         cellClass += ' manual-fill';
                     }
 
+                    if (currentTool === 'place-motif') {
+                        cellClass += ' motif-mode';
+                    }
+
                     cell.className = cellClass;
                     cell.dataset.x = x;
                     cell.dataset.y = y;
 
-                    cell.addEventListener('mousedown', (e) => {
-                        isDrawing = true;
-                        handleCellInteraction(x, y, e);
+                    cell.addEventListener('click', (e) => {
                         e.preventDefault();
+                        if (currentTool === 'place-motif' && selectedMotif) {
+                            placeMotif(x, y);
+                        } else if (currentTool === 'fill' || currentTool === 'erase' || currentTool === 'manual-fill') {
+                            // Single click mode for fill tools
+                            handleCellInteraction(x, y, e);
+                        }
+                    });
+
+                    // Optional: Keep drag functionality for those who want it
+                    cell.addEventListener('mousedown', (e) => {
+                        if (e.shiftKey && (currentTool === 'fill' || currentTool === 'erase' || currentTool === 'manual-fill')) {
+                            isDrawing = true;
+                            handleCellInteraction(x, y, e);
+                            e.preventDefault();
+                        }
                     });
 
                     cell.addEventListener('mouseenter', (e) => {
                         if (isDrawing && (currentTool === 'fill' || currentTool === 'erase' || currentTool === 'manual-fill')) {
                             handleCellInteraction(x, y, e);
-                        }
-                    });
-
-                    cell.addEventListener('click', (e) => {
-                        if (currentTool === 'place-motif' && selectedMotif) {
-                            placeMotif(x, y);
                         }
                     });
 
@@ -899,18 +927,24 @@ CROCHET_DESIGN_ADVANCED_HTML = '''
         }
 
         function handleCellInteraction(x, y, e) {
+            // Only handle drawing tools with drag when mouse is down
             if (currentTool === 'fill') {
                 gridData[currentSide][y][x] = true;
                 manualFills[currentSide][y][x] = false; // Clear manual fill if present
+                const cell = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                cell.className = 'grid-cell filled';
             } else if (currentTool === 'erase') {
                 gridData[currentSide][y][x] = false;
                 manualFills[currentSide][y][x] = false;
+                const cell = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                cell.className = 'grid-cell';
             } else if (currentTool === 'manual-fill') {
                 manualFills[currentSide][y][x] = true;
                 gridData[currentSide][y][x] = true; // Manual fill implies filled
+                const cell = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+                cell.className = 'grid-cell filled manual-fill';
             }
 
-            renderGrid();
             updateStats();
         }
 
@@ -926,10 +960,28 @@ CROCHET_DESIGN_ADVANCED_HTML = '''
                 size: 1
             };
 
+            // Check if motif fits within grid bounds
+            const maxY = y + selectedMotif.pattern.length;
+            const maxX = x + (selectedMotif.pattern[0] ? selectedMotif.pattern[0].length : 0);
+
+            if (maxX > gridWidth || maxY > gridHeight) {
+                alert(`Motif doesn't fit! Grid size: ${gridWidth}x${gridHeight}, Motif would extend to: ${maxX}x${maxY}`);
+                return;
+            }
+
             placedMotifs[currentSide].push(motif);
             applyMotifToGrid(motif);
             renderGrid();
             updateStats();
+
+            // Show placement confirmation
+            const confirmation = document.getElementById('validation-errors');
+            if (confirmation) {
+                confirmation.innerHTML = `<div class="success">✅ ${selectedMotif.name} motif placed at (${x}, ${y})</div>`;
+                setTimeout(() => {
+                    confirmation.innerHTML = '';
+                }, 3000);
+            }
 
             // Clear selection
             selectedMotif = null;
