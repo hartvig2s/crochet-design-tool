@@ -1,5 +1,5 @@
 import streamlit as st
-import streamlit.components.v1 as components
+from crochet_component import crochet_design_tool
 
 # Set page config
 st.set_page_config(
@@ -51,23 +51,9 @@ st.markdown("""
 
 st.markdown("---")
 
-# Create the component using direct HTML
+# Create the component
 st.write("### Crochet Design Tool")
-
-# Read the HTML content directly
-import os
-html_path = os.path.join("crochet_component", "frontend", "index.html")
-
-if os.path.exists(html_path):
-    with open(html_path, 'r', encoding='utf-8') as f:
-        html_content = f.read()
-
-    # Use Streamlit's built-in HTML component
-    component_data = components.html(html_content, height=800, scrolling=False)
-
-else:
-    st.error(f"HTML file not found at: {html_path}")
-    component_data = None
+component_data = crochet_design_tool(key="crochet_tool")
 
 # Display any data returned from the component
 if component_data is not None:
