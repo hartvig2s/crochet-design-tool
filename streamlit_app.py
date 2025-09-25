@@ -63,7 +63,7 @@ if os.path.exists(html_path):
         html_content = f.read()
 
     # Use Streamlit's built-in HTML component
-    component_data = components.html(html_content, height=400, scrolling=True)
+    component_data = components.html(html_content, height=800, scrolling=False)
 
 else:
     st.error(f"HTML file not found at: {html_path}")
