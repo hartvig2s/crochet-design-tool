@@ -1,6 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import base64
+from crochet_design_embedded import CROCHET_DESIGN_HTML
 
 # Set page config
 st.set_page_config(
@@ -52,71 +52,8 @@ st.markdown("""
 
 st.markdown("---")
 
-# Create the component using embedded HTML
-st.write("### Crochet Design Tool")
-
-# Embed the HTML directly as a string to avoid file system issues
-html_content = '''
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Crochet Component</title>
-</head>
-<body>
-  <div style="padding: 20px; font-family: sans-serif;">
-    <h2 style="color: #262730;">🧶 Crochet Design Tool Component</h2>
-    <div style="background: #f0f2f6; padding: 15px; border-radius: 8px; margin: 10px 0;">
-      <p><strong>Status:</strong> ✅ Component loaded successfully!</p>
-      <p><strong>Time:</strong> <span id="current-time"></span></p>
-      <button onclick="sendTestData()" style="background: #ff4b4b; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
-        Send Test Data
-      </button>
-    </div>
-    <div id="message" style="margin-top: 15px;"></div>
-  </div>
-
-  <script>
-    // Update time
-    document.getElementById('current-time').textContent = new Date().toLocaleString();
-
-    function sendTestData() {
-      const data = {
-        action: "test_button_clicked",
-        timestamp: new Date().toISOString(),
-        status: "working"
-      };
-
-      // Send to Streamlit
-      window.parent.postMessage({
-        type: "streamlit:setComponentValue",
-        value: data
-      }, "*");
-
-      document.getElementById('message').innerHTML =
-        '<p style="color: green;">✅ Test data sent to Streamlit!</p>';
-    }
-
-    // Set component height
-    function updateHeight() {
-      const height = Math.max(document.body.scrollHeight, 250);
-      window.parent.postMessage({
-        type: "streamlit:setFrameHeight",
-        height: height
-      }, "*");
-    }
-
-    // Initialize
-    window.addEventListener('load', updateHeight);
-    window.addEventListener('resize', updateHeight);
-  </script>
-</body>
-</html>
-'''
-
-# Use Streamlit's built-in HTML component with embedded content
-component_data = components.html(html_content, height=300, scrolling=False)
+# Create the complete crochet design tool
+component_data = components.html(CROCHET_DESIGN_HTML, height=700, scrolling=False)
 
 # Display any data returned from the component
 if component_data is not None:
