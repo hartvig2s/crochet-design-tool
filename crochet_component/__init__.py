@@ -18,17 +18,9 @@ else:
     parent_dir = os.path.dirname(os.path.abspath(__file__))
     build_dir = os.path.join(parent_dir, "frontend")
 
-    # Debug: Check if path exists
+    # Ensure the build directory exists
     if not os.path.exists(build_dir):
-        st.error(f"Component frontend directory not found: {build_dir}")
-        st.error(f"Parent dir: {parent_dir}")
-        st.error(f"Files in parent: {os.listdir(parent_dir) if os.path.exists(parent_dir) else 'N/A'}")
-    else:
-        st.success(f"Component frontend directory found: {build_dir}")
-        if os.path.exists(os.path.join(build_dir, "index.html")):
-            st.success("index.html found")
-        else:
-            st.error("index.html not found")
+        raise FileNotFoundError(f"Component frontend directory not found: {build_dir}")
 
     _component_func = components.declare_component("crochet_design_tool", path=build_dir)
 

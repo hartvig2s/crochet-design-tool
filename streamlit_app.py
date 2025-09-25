@@ -52,15 +52,8 @@ st.markdown("""
 st.markdown("---")
 
 # Create the component
-try:
-    st.write("### Component Debug Info")
-    st.write("Attempting to load crochet_design_tool component...")
-    component_data = crochet_design_tool(key="crochet_tool")
-    st.success("✅ Component loaded successfully!")
-except Exception as e:
-    st.error(f"❌ Component failed to load: {e}")
-    import traceback
-    st.code(traceback.format_exc())
+st.write("### Crochet Design Tool")
+component_data = crochet_design_tool(key="crochet_tool", default=None)
 
 # Display any data returned from the component
 if component_data is not None:
