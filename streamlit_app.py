@@ -1,6 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
-from crochet_design_embedded import CROCHET_DESIGN_HTML
+from crochet_design_advanced import CROCHET_DESIGN_ADVANCED_HTML
 
 # Set page config
 st.set_page_config(
@@ -52,8 +52,8 @@ st.markdown("""
 
 st.markdown("---")
 
-# Create the complete crochet design tool
-component_data = components.html(CROCHET_DESIGN_HTML, height=700, scrolling=False)
+# Create the advanced crochet design tool with all features
+component_data = components.html(CROCHET_DESIGN_ADVANCED_HTML, height=800, scrolling=False)
 
 # Display any data returned from the component
 if component_data is not None:

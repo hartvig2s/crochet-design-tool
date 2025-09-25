@@ -1,4 +1,4 @@
-# Embedded Crochet Design Tool - Complete HTML implementation
+# Embedded Crochet Design Tool - Complete HTML implementation with all advanced features
 CROCHET_DESIGN_HTML = '''
 <!DOCTYPE html>
 <html lang="en">
