@@ -53,7 +53,7 @@ st.markdown("---")
 
 # Create the component
 st.write("### Crochet Design Tool")
-component_data = crochet_design_tool(key="crochet_tool", default=None)
+component_data = crochet_design_tool(key="crochet_tool")
 
 # Display any data returned from the component
 if component_data is not None:
