@@ -564,6 +564,8 @@ CROCHET_DESIGN_ADVANCED_HTML = '''
 
                     <!-- Custom Text Motif -->
                     <div class="custom-text-input">
+                        <h4>Create Text Motif</h4>
+                        <p style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 0.5rem;">Type text to convert into a fillable pattern. Each character becomes a filled square.</p>
                         <textarea id="custom-text" placeholder="Enter text for custom motif..."></textarea>
                         <button class="btn btn-success btn-small" onclick="createTextMotif()" style="width: 100%;">Create Text Motif</button>
                     </div>
@@ -1130,10 +1132,10 @@ CROCHET_DESIGN_ADVANCED_HTML = '''
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
 
-                    const maxSize = 20; // Limit pattern size
+                    const maxSize = 15; // Limit pattern size to fit in most grids
                     const scale = Math.min(maxSize / img.width, maxSize / img.height);
-                    const width = Math.floor(img.width * scale);
-                    const height = Math.floor(img.height * scale);
+                    const width = Math.max(1, Math.floor(img.width * scale));
+                    const height = Math.max(1, Math.floor(img.height * scale));
 
                     canvas.width = width;
                     canvas.height = height;
@@ -1157,12 +1159,21 @@ CROCHET_DESIGN_ADVANCED_HTML = '''
 
                     // Add to motif library
                     const customMotif = {
-                        name: `Custom ${motifLibrary.length + 1}`,
+                        name: `Image ${motifLibrary.length - 5}`, // Subtract built-in motifs
                         symbol: '📷',
                         pattern: pattern
                     };
                     motifLibrary.push(customMotif);
                     populateMotifLibrary();
+
+                    // Show success message
+                    const confirmation = document.getElementById('validation-errors');
+                    if (confirmation) {
+                        confirmation.innerHTML = `<div class="success">✅ Image motif created! Size: ${pattern[0].length}x${pattern.length} (${file.name})</div>`;
+                        setTimeout(() => {
+                            confirmation.innerHTML = '';
+                        }, 4000);
+                    }
                 };
                 img.src = e.target.result;
             };
@@ -1171,22 +1182,54 @@ CROCHET_DESIGN_ADVANCED_HTML = '''
 
         function createTextMotif() {
             const text = document.getElementById('custom-text').value.trim();
-            if (!text) return;
+            if (!text) {
+                alert('Please enter some text first!');
+                return;
+            }
 
-            // Simple text to pattern conversion (very basic)
-            const lines = text.split('\\n').slice(0, 10); // Max 10 lines
-            const pattern = lines.map(line => {
-                return line.split('').slice(0, 20).map(char => char !== ' ' ? 1 : 0);
-            });
+            // Simple text to pattern conversion - create a block pattern
+            const lines = text.split('\\n').slice(0, 8); // Max 8 lines to fit in grid
+            const maxLineLength = Math.min(15, Math.max(...lines.map(line => line.length))); // Max 15 chars per line
+
+            const pattern = [];
+            for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+                const line = lines[lineIndex];
+                const row = [];
+                for (let charIndex = 0; charIndex < maxLineLength; charIndex++) {
+                    if (charIndex < line.length) {
+                        // Fill if character is not a space
+                        row.push(line[charIndex] !== ' ' ? 1 : 0);
+                    } else {
+                        // Fill remaining with 0s
+                        row.push(0);
+                    }
+                }
+                pattern.push(row);
+            }
+
+            // Ensure we have at least a 1x1 pattern
+            if (pattern.length === 0 || pattern[0].length === 0) {
+                pattern.push([1]); // Default single dot
+            }
 
             const customMotif = {
-                name: `Text: ${text.substring(0, 10)}...`,
+                name: `Text: ${text.substring(0, 8)}${text.length > 8 ? '...' : ''}`,
                 symbol: '📝',
                 pattern: pattern
             };
+
             motifLibrary.push(customMotif);
             populateMotifLibrary();
             document.getElementById('custom-text').value = '';
+
+            // Show success message
+            const confirmation = document.getElementById('validation-errors');
+            if (confirmation) {
+                confirmation.innerHTML = `<div class="success">✅ Text motif "${customMotif.name}" created! Size: ${pattern[0].length}x${pattern.length}</div>`;
+                setTimeout(() => {
+                    confirmation.innerHTML = '';
+                }, 4000);
+            }
         }
 
         function newProject() {
